@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#d71920">
+<title>VISHNU Trading Company</title>
+<style>
+:root{--red:#d71920;--dark:#151515;--cream:#fff8ef;--gold:#ffca28}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,Arial,sans-serif;background:#f7f7f7;color:var(--dark)}
+header{background:linear-gradient(135deg,#b90812,#ed1c24);color:#fff;position:sticky;top:0;z-index:20;box-shadow:0 4px 18px #0002}
+.nav{max-width:1150px;margin:auto;padding:15px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand{display:flex;align-items:center;gap:11px}
+.logo{width:46px;height:46px;border-radius:14px;background:#fff;color:var(--red);display:grid;place-items:center;font-weight:1000;font-size:19px;box-shadow:0 3px 10px #0003}
+.brand h1{font-size:19px;margin:0;font-weight:900}.brand small{opacity:.9}
+.cartTop{border:0;background:#fff;color:var(--red);font-weight:900;border-radius:13px;padding:11px 14px;cursor:pointer}
+.hero{background:linear-gradient(135deg,#fff3d6,#fff);padding:34px 18px 28px;text-align:center}
+.hero h2{font-size:clamp(28px,6vw,48px);margin:0 0 8px}.hero p{margin:0;color:#666}
+.wrap{max-width:1150px;margin:auto;padding:25px 16px 110px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+.card{background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 5px 20px #00000012;display:flex;flex-direction:column}
+.pic{height:235px;background:#fafafa;display:flex;align-items:center;justify-content:center;padding:10px}
+.pic img{width:100%;height:100%;object-fit:contain}
+.info{padding:15px}.info h3{font-size:18px;margin:0 0 6px}.type{font-size:12px;color:#777;min-height:30px}.price{font-size:22px;font-weight:950;margin:9px 0}
+.controls{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.add{flex:1;border:0;background:var(--red);color:#fff;padding:11px;border-radius:11px;font-weight:900;cursor:pointer}
+.qty{display:flex;align-items:center;gap:8px}.qty button{width:34px;height:34px;border:0;border-radius:10px;background:#eee;font-size:20px;font-weight:900;cursor:pointer}.qty span{min-width:20px;text-align:center;font-weight:900}
+.cart{margin-top:30px;background:#fff;border-radius:22px;padding:20px;box-shadow:0 5px 20px #00000010}
+.cart h2{margin-top:0}.cartRow{display:flex;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid #eee}.cartRow:last-child{border-bottom:0}.total{display:flex;justify-content:space-between;font-size:22px;font-weight:950;padding-top:15px}
+.form{margin-top:20px;display:grid;gap:12px}.form input,.form textarea{width:100%;padding:13px;border:1px solid #ddd;border-radius:12px;font:inherit}.form textarea{min-height:85px;resize:vertical}
+.order{width:100%;border:0;background:#25d366;color:#fff;padding:15px;border-radius:13px;font-size:17px;font-weight:950;cursor:pointer}
+.note{font-size:12px;color:#777;text-align:center;margin-top:8px}
+.empty{text-align:center;color:#777;padding:10px}
+@media(max-width:900px){.grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:520px){.nav{padding:11px 12px}.brand h1{font-size:16px}.logo{width:40px;height:40px;font-size:16px}.grid{grid-template-columns:repeat(2,1fr);gap:11px}.pic{height:180px}.info{padding:11px}.info h3{font-size:15px}.price{font-size:19px}.add{padding:9px 6px}.hero{padding:25px 15px}.wrap{padding:18px 10px 90px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="nav">
+    <div class="brand">
+      <div class="logo">VT</div>
+      <div><h1>VISHNU Trading Company</h1><small>Namkeen &amp; Chips Store</small></div>
+    </div>
+    <button class="cartTop" onclick="document.getElementById('cart').scrollIntoView({behavior:'smooth'})">🛒 Cart (<span id="cartCount">0</span>)</button>
+  </div>
+</header>
+
+<section class="hero">
+  <h2>Crunch. Munch. Repeat. 😋</h2>
+  <p>Choose your favourites, add to cart and place your order directly on WhatsApp.</p>
+</section>
+
+<main class="wrap">
+  <div class="grid" id="products"></div>
+
+  <section class="cart" id="cart">
+    <h2>🛒 Your Cart</h2>
+    <div id="cartItems" class="empty">Your cart is empty.</div>
+    <div class="total"><span>Total</span><span>₹<span id="total">0</span></span></div>
+
+    <div class="form">
+      <input id="name" placeholder="Customer Name *">
+      <input id="mobile" inputmode="numeric" placeholder="Mobile Number *">
+      <textarea id="address" placeholder="Delivery Address *"></textarea>
+      <button class="order" onclick="placeOrder()">📱 Place Order on WhatsApp</button>
+      <div class="note">Delivery area/charges will be confirmed on WhatsApp.</div>
+    </div>
+  </section>
+</main>
+
+<script>
+const WHATSAPP = "919412449978";
+
+const products = [
+  {id:"rings",name:"Rings",detail:"Pack of 14 • MRP ₹5/pack",price:60,img:"images/rings.png"},
+  {id:"jungle",name:"Jungle Mangal",detail:"Pack of 14 • MRP ₹5/pack",price:60,img:"images/jungle-mangal.png"},
+  {id:"frisbee",name:"Frisbee Katori",detail:"Pack of 14 • MRP ₹5/pack",price:60,img:"images/frisbee-katori.png"},
+  {id:"sticks",name:"Chacha Chaudhary Sticks – Mast Masala",detail:"Pack of 10 • MRP ₹10/pack",price:85,img:"images/sticks.png"},
+  {id:"salted",name:"CRAX Simply Salted",detail:"Potato Chips • Selling price ₹85",price:85,img:"images/cray-simply-salted.png"},
+  {id:"masala",name:"CRAX Masala Punch",detail:"Potato Chips • Selling price ₹85",price:85,img:"images/cray-masala-punch.jpg"},
+  {id:"onion",name:"CRAX Creamy Onion",detail:"Potato Chips • Selling price ₹85",price:85,img:"images/cray-creamy-onion.jpg"}
+];
+
+const cart = {};
+const el = id => document.getElementById(id);
+
+function renderProducts(){
+  el("products").innerHTML = products.map(p => `
+    <article class="card">
+      <div class="pic"><img src="${p.img}" alt="${p.name}"></div>
+      <div class="info">
+        <h3>${p.name}</h3>
+        <div class="type">${p.detail}</div>
+        <div class="price">₹${p.price}</div>
+        <div class="controls">
+          ${cart[p.id] ? `
+            <div class="qty">
+              <button onclick="changeQty('${p.id}',-1)">−</button>
+              <span>${cart[p.id]}</span>
+              <button onclick="changeQty('${p.id}',1)">+</button>
+            </div>` :
+            `<button class="add" onclick="changeQty('${p.id}',1)">➕ Add to Cart</button>`}
+        </div>
+      </div>
+    </article>
+  `).join("");
+}
+
+function changeQty(id, delta){
+  cart[id] = (cart[id] || 0) + delta;
+  if(cart[id] <= 0) delete cart[id];
+  renderProducts(); renderCart();
+}
+
+function renderCart(){
+  const ids = Object.keys(cart);
+  if(!ids.length){
+    el("cartItems").innerHTML = '<div class="empty">Your cart is empty.</div>';
+  } else {
+    el("cartItems").innerHTML = ids.map(id => {
+      const p = products.find(x=>x.id===id), q=cart[id];
+      return `<div class="cartRow"><div><b>${p.name}</b><br><small>₹${p.price} × ${q}</small></div><b>₹${p.price*q}</b></div>`;
+    }).join("");
+  }
+  const count = ids.reduce((s,id)=>s+cart[id],0);
+  const total = ids.reduce((s,id)=>s+products.find(p=>p.id===id).price*cart[id],0);
+  el("cartCount").textContent=count;
+  el("total").textContent=total;
+}
+
+function placeOrder(){
+  const name=el("name").value.trim(), mobile=el("mobile").value.trim(), address=el("address").value.trim();
+  const ids=Object.keys(cart);
+  if(!ids.length) return alert("Pehle cart me product add karo.");
+  if(!name || !mobile || !address) return alert("Name, mobile aur address fill karo.");
+  let total=0;
+  let lines=ids.map((id,i)=>{
+    const p=products.find(x=>x.id===id), q=cart[id], sub=p.price*q; total+=sub;
+    return `${i+1}. ${p.name} × ${q} = ₹${sub}`;
+  });
+  const msg =
+`*VISHNU Trading Company – New Order* 🛍️
+
+*Customer:* ${name}
+*Mobile:* ${mobile}
+*Address:* ${address}
+
+*Products:*
+${lines.join("\n")}
+
+*TOTAL: ₹${total}*
+
+Please confirm my order.`;
+  window.open("https://wa.me/"+WHATSAPP+"?text="+encodeURIComponent(msg),"_blank");
+}
+
+renderProducts();
+renderCart();
+</script>
+</body>
+</html>
